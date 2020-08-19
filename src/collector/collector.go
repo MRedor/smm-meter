@@ -12,10 +12,6 @@ type Collector struct {
 	service *youtube.Service
 }
 
-func NewCollector() (*Collector, error) {
-	return nil, nil
-}
-
 const ChannelParts = "brandingSettings,contentDetails,contentOwnerDetails," +
 	"id,invideoPromotion,localizations,snippet,statistics,status,topicDetails"
 
@@ -39,8 +35,8 @@ func (c *Collector) ChannelByUsername(username string) error {
 	if !db.ChannelExists(channel) {
 		err = db.AddChannel(channel)
 	}
-	//db.AddChannelStats(channel)
-	c.VideosByChannelID(channel.Id)
+	db.AddChannelStats(channel)
+	//c.VideosByChannelID(channel.Id)
 	return err
 
 	//channel := response.Items[0]
@@ -58,6 +54,22 @@ func (c *Collector) ChannelByUsername(username string) error {
 
 	//fmt.Println(response.Items[0].TopicDetails.TopicCategories)
 	//fmt.Println(response.Items[0].ContentDetails.RelatedPlaylists)
+}
+
+func (c *Collector) ChannelById(id string) error {
+	call := c.service.Channels.List([]string{ChannelParts}).Id(id)
+	response, err := call.Do()
+	if err != nil {
+		return err
+	}
+
+	channel := response.Items[0]
+	if !db.ChannelExists(channel) {
+		db.AddChannel(channel)
+	}
+	db.AddChannelStats(channel)
+
+	return nil
 }
 
 func (c *Collector) RelatedVideos(videoId string) error {
@@ -90,28 +102,6 @@ func (c *Collector) VideosByChannelID(channelID string) error {
 		db.AddReactions(vidR.Items[0])
 	}
 
-
-	return nil
-}
-
-func (c *Collector) PopularVideos() error {
-	videos, err := c.service.Videos.List([]string{VideoParts}).Chart("mostPopular").MaxResults(100).Do()
-	if err != nil {
-		return err
-	}
-	//fmt.Println(len(videos.Items))
-
-	for _, v := range videos.Items {
-
-		if !db.VideoExists(v) {
-			err = db.AddVideo(v)
-			if err != nil {
-				//TODO
-			}
-		}
-		db.AddPopular(v)
-		db.AddReactions(v)
-	}
 
 	return nil
 }

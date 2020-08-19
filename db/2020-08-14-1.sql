@@ -7,7 +7,6 @@ CREATE TABLE IF NOT EXISTS  `videos` (
     `snippet` text NOT NULL,
     `channelId` text NOT NULL,
     `publishedAt` text NOT NULL,
-    `statistics` text NOT NULL,
     `status` text,
     `topicDetails` text
 )

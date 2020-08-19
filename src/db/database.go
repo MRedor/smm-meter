@@ -3,12 +3,12 @@ package db
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/jmoiron/sqlx"
 	"google.golang.org/api/youtube/v3"
 	"log"
 	"strings"
 
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/denisenkom/go-mssqldb"
+	"github.com/jmoiron/sqlx"
 
 	"config"
 )
@@ -46,10 +46,6 @@ func AddVideo(video *youtube.Video) error {
 	if err != nil {
 		return err
 	}
-	statistics, err := video.Statistics.MarshalJSON()
-	if err != nil {
-		return err
-	}
 
 	if video.Status != nil {
 		status, err = video.Status.MarshalJSON()
@@ -65,13 +61,13 @@ func AddVideo(video *youtube.Video) error {
 		}
 	}
 
-	query :=  "insert into videos " + "(id, contentDetails, duration, localizations, recordingDetails, snippet, channelId, publishedAt, statistics, status, topicDetails)" +
-		fmt.Sprintf(` values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')`,
+	query :=  "insert into videos " + "(id, contentDetails, duration, localizations, recordingDetails, snippet, channelId, publishedAt, status, topicDetails)" +
+		fmt.Sprintf(` values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')`,
 		video.Id, updateApostrophes(string(contentDetails)),
 		video.ContentDetails.Duration,
 		updateApostrophes(string(localizations)), updateApostrophes(string(recordingDetails)), updateApostrophes(string(snippet)),
 		video.Snippet.ChannelId, video.Snippet.PublishedAt,
-		updateApostrophes(string(statistics)), updateApostrophes(string(status)), updateApostrophes(string(topicDetails)),
+		updateApostrophes(string(status)), updateApostrophes(string(topicDetails)),
 	)
 	//fmt.Println(query)
 	
@@ -183,7 +179,7 @@ func AddChannel(channel *youtube.Channel) error {
 func AddChannelStats(channel *youtube.Channel) error {
 	query :=  "insert into channelStats (channelId, subscriberCount, videoCount)" +
 		fmt.Sprintf(` values ('%s', %v, %v)`, channel.Id, channel.Statistics.SubscriberCount, channel.Statistics.VideoCount)
-	fmt.Println(query)
+	//fmt.Println(query)
 
 	_, err := db.Exec(query)
 	return err
@@ -209,10 +205,20 @@ func ChannelExists(channel *youtube.Channel) bool {
 	return count > 0
 }
 
+func VideoWasPopular(video *youtube.Video) bool {
+	query := "select count(*) from popular where videoId='" + video.Id + "'"
+
+	var count int
+	row := db.QueryRow(query)
+	row.Scan(&count)
+
+	return count > 0
+}
+
 func init() {
-	source := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
-		config.Cfg.DB.Username, config.Cfg.DB.Password, config.Cfg.DB.Host, config.Cfg.DB.Port, config.Cfg.DB.Database)
-	database, err := sqlx.Open("mysql", source)
+	source := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%s;database=%s;",
+		config.Cfg.DB.Host, config.Cfg.DB.Username, config.Cfg.DB.Password, config.Cfg.DB.Port, config.Cfg.DB.Database)
+	database, err := sqlx.Open("sqlserver", source)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -222,11 +228,11 @@ func init() {
 		log.Fatal(err)
 	}
 
-	query := "select count(*) from videos where id='" + "kek" + "'"
-
-	var count int
-	row := db.QueryRow(query)
-	row.Scan(&count)
-
-	fmt.Println(count)
+	//query := "select count(*) from videos where id='" + "kek" + "'"
+	//
+	//var count int
+	//row := db.QueryRow(query)
+	//row.Scan(&count)
+	//
+	//fmt.Println(count)
 }
