@@ -26,7 +26,8 @@ type DBConfig struct {
 var Cfg сonfig
 
 func initGoogle() {
-	b, err := ioutil.ReadFile("src/config/client_secret.json")
+	//b, err := ioutil.ReadFile("src/config/client_secret.json")
+	b, err := ioutil.ReadFile("src/config/second_secret.json")
 	if err != nil {
 		log.Fatalf("Unable to read client secret file: %v", err)
 	}

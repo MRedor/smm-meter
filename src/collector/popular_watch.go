@@ -44,7 +44,7 @@ func (c *Collector) WatchVideo(videoId string) {
 	}
 
 
-	var sleepMinutes int = 15
+	var sleepMinutes int = 30
 	var prevErr error
 	var views = 0
 
@@ -69,13 +69,13 @@ func (c *Collector) WatchVideo(videoId string) {
 		if float64(v.Statistics.ViewCount) < 1.01 * float64(views) {
 			sleepMinutes = sleepMinutes * 2
 		}
-		if sleepMinutes < 10 {
+		if sleepMinutes < 15 {
 			if !c.checkIsInPopular(videoId) {
 				break
 			}
-			sleepMinutes = 10
+			sleepMinutes = 15
 		}
-		if sleepMinutes > 60 {
+		if sleepMinutes > 120 {
 			sleepMinutes = 60
 		}
 
