@@ -17,6 +17,17 @@ const ChannelParts = "brandingSettings,contentDetails,contentOwnerDetails," +
 
 const VideoParts = "contentDetails,id,localizations,recordingDetails,snippet,statistics,status,topicDetails"
 
+func (c *Collector) Try() error {
+	resp, err := c.service.Search.List([]string{"id,snippet"}).ChannelId("UCDF_NIAEkcAUvzxe1DUzaQA").PublishedAfter(time.Now().AddDate(0, -1, 0).Format(time.RFC3339)).Order("date").MaxResults(50).Do()
+	fmt.Println(len(resp.Items))
+	return err
+}
+
+func (c *Collector) Categories() {
+	kek, _ := c.service.VideoCategories.List([]string{"snippet"}).RegionCode("RU") .Do()
+	fmt.Println(kek.Items)
+}
+
 func (c *Collector) ChannelByUsername(username string) error {
 	//kek, err := service.VideoCategories.List([]string{"snippet"}).RegionCode("RU") .Do()
 	//fmt.Println(len(kek.Items))

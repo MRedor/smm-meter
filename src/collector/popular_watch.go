@@ -8,7 +8,7 @@ import (
 )
 
 func (c *Collector) PopularVideos() error {
-	videos, err := c.service.Videos.List([]string{VideoParts}).Chart("mostPopular").MaxResults(100).Do()
+	videos, err := c.service.Videos.List([]string{VideoParts}).Chart("mostPopular").MaxResults(100).RegionCode("RU").Do()
 	if err != nil {
 		return err
 	}

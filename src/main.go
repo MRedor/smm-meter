@@ -6,8 +6,9 @@ import (
 )
 
 func main() {
-
 	c, _ := collector.NewCollector()
+	//c.Try()
+
 	for {
 		go c.PopularVideos()
 		time.Sleep(6 * time.Hour)

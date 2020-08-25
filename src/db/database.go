@@ -82,7 +82,7 @@ func AddVideo(video *youtube.Video) error {
 }
 
 func AddReactions(video *youtube.Video) error {
-	query :=  "insert into reactions (videoId, comments, dislikes, likes, views, favorites)" +
+	query :=  "insert into videoStats (videoId, comments, dislikes, likes, views, favorites)" +
 		fmt.Sprintf(` values ('%s', %v, %v, %v, %v, %v)`,
 			video.Id, video.Statistics.CommentCount, video.Statistics.DislikeCount, video.Statistics.LikeCount,
 			video.Statistics.ViewCount, video.Statistics.FavoriteCount)
@@ -213,6 +213,27 @@ func VideoWasPopular(video *youtube.Video) bool {
 	row.Scan(&count)
 
 	return count > 0
+}
+
+type VideoStats struct {
+	Id string `db:"videoId"`
+	Comments int `db:"comments"`
+	Dislikes int `db:"dislikes"`
+	Likes int `db:"likes"`
+	Views int `db:"views"`
+	Favorites int `db:"favorites"`
+	Data string `db:"data"`
+}
+
+func VideoStatsById(videoId string) ([]VideoStats, error) {
+	query := fmt.Sprintf("select * from videoStats where convert(varchar, videoId)='%s' order by data", videoId)
+
+	stats := []VideoStats{}
+	err := db.Select(&stats, query)
+	if err != nil {
+		return nil, err
+	}
+	return stats, nil
 }
 
 func init() {
