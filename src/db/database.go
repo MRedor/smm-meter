@@ -69,7 +69,7 @@ func AddVideo(video *youtube.Video) error {
 		video.Snippet.ChannelId, video.Snippet.PublishedAt,
 		updateApostrophes(string(status)), updateApostrophes(string(topicDetails)),
 	)
-	//fmt.Println(query)
+	fmt.Println(query)
 	
 	_, err = db.Exec(query)
 
@@ -179,7 +179,7 @@ func AddChannel(channel *youtube.Channel) error {
 func AddChannelStats(channel *youtube.Channel) error {
 	query :=  "insert into channelStats (channelId, subscriberCount, videoCount)" +
 		fmt.Sprintf(` values ('%s', %v, %v)`, channel.Id, channel.Statistics.SubscriberCount, channel.Statistics.VideoCount)
-	//fmt.Println(query)
+	fmt.Println(query)
 
 	_, err := db.Exec(query)
 	return err
