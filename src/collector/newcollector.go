@@ -74,7 +74,7 @@ func tokenCacheFile() (string, error) {
 	tokenCacheDir := filepath.Join(usr.HomeDir, ".credentials")
 	os.MkdirAll(tokenCacheDir, 0700)
 	return filepath.Join(tokenCacheDir,
-		url.QueryEscape("third_secret.json")), err
+		url.QueryEscape("second_secret.json")), err
 }
 
 // tokenFromFile retrieves a Token from a given file path.

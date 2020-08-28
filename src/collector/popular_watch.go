@@ -87,6 +87,8 @@ func (c *Collector) WatchVideo(videoId string) {
 func (c *Collector) checkIsInPopular(videoId string) bool {
 	videos, _ := c.service.Videos.List([]string{"id"}).Chart("mostPopular").MaxResults(50).Do()
 
+
+
 	for _, v := range videos.Items {
 		if v.Id == videoId {
 			return true
