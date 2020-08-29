@@ -23,7 +23,7 @@ func (c *Collector) PopularVideos() error {
 			}
 		}
 		if !db.VideoWasPopular(v) {
-			go c.WatchVideo(v.Id)
+			go c.WatchPopularVideo(v.Id)
 		}
 
 		db.AddPopular(v)
@@ -33,7 +33,7 @@ func (c *Collector) PopularVideos() error {
 	return nil
 }
 
-func (c *Collector) WatchVideo(videoId string) {
+func (c *Collector) WatchPopularVideo(videoId string) {
 	f, err := os.OpenFile("src/collector/trends_on_watch", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Println(err)

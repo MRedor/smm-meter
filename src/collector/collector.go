@@ -67,20 +67,24 @@ func (c *Collector) ChannelByUsername(username string) error {
 	//fmt.Println(response.Items[0].ContentDetails.RelatedPlaylists)
 }
 
-func (c *Collector) ChannelById(id string) error {
+func (c *Collector) ChannelById(id string) (*youtube.Channel, error) {
 	call := c.service.Channels.List([]string{ChannelParts}).Id(id)
-	response, err := call.Do()
+	resp, err := call.Do()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	channel := response.Items[0]
+	if len(resp.Items) == 0 {
+		return nil, errors.New("no such channel")
+	}
+
+		channel := resp.Items[0]
 	if !db.ChannelExists(channel) {
 		db.AddChannel(channel)
 	}
 	db.AddChannelStats(channel)
 
-	return nil
+	return channel, nil
 }
 
 func (c *Collector) RelatedVideos(videoId string) error {
@@ -92,14 +96,33 @@ func (c *Collector) RelatedVideos(videoId string) error {
 	return nil
 }
 
+func (c *Collector) VideosForLastMonth(channelId string) ([]*youtube.Video, error) {
+	query := c.service.Search.List([]string{"id,snippet"}).ChannelId(channelId).PublishedAfter(time.Now().AddDate(0, -1, 0).Format(time.RFC3339)).Order("date").MaxResults(50)
+	resp, err := query.Do()
+	if err != nil {
+		return nil, err
+	}
+
+	ids := ""
+	for i, item := range resp.Items {
+		if i == 0 {
+			ids = item.Id.VideoId
+		} else {
+			ids = ids + ", " + item.Id.VideoId
+		}
+	}
+	videos, err := c.service.Videos.List([]string{VideoParts}).Id(ids).Do()
+	if err != nil {
+		return nil, err
+	}
+	return videos.Items, nil
+}
+
 func (c *Collector) VideosByChannelID(channelID string) error {
-	search := c.service.Search.List([]string{"id,snippet"}).ChannelId(channelID).PublishedAfter(time.Now().AddDate(0, -1, 0).Format(time.RFC3339)).Order("date").MaxResults(50)
-	result, err := search.Do()
+	result, err := c.service.Search.List([]string{"id,snippet"}).ChannelId(channelID).Order("date").MaxResults(50).Do()
 	if err != nil {
 		return err
 	}
-
-	fmt.Println(fmt.Sprintf("For the last month: %d videos.", len(result.Items)))
 
 	for _, v := range result.Items {
 		vidR, err := c.service.Videos.List([]string{VideoParts}).Id(v.Id.VideoId).Do()
@@ -115,4 +138,17 @@ func (c *Collector) VideosByChannelID(channelID string) error {
 
 
 	return nil
+}
+
+func (c *Collector) VideoById(id string) (*youtube.Video, error) {
+	resp, err := c.service.Videos.List([]string{VideoParts}).Id(id).Do()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(resp.Items) == 0 {
+		return nil, errors.New("no such video")
+	}
+
+	return resp.Items[0], nil
 }
