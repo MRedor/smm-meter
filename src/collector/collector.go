@@ -108,7 +108,7 @@ func (c *Collector) VideosForLastMonth(channelId string) ([]*youtube.Video, erro
 		if i == 0 {
 			ids = item.Id.VideoId
 		} else {
-			ids = ids + ", " + item.Id.VideoId
+			ids = ids + "," + item.Id.VideoId
 		}
 	}
 	videos, err := c.service.Videos.List([]string{VideoParts}).Id(ids).Do()
