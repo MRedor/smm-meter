@@ -126,7 +126,7 @@ func GetTimeline(ctx echo.Context) error {
 		timeline.Likes = append(timeline.Likes, st.Likes)
 		timeline.Dislikes = append(timeline.Dislikes, st.Dislikes)
 		timeline.Comments = append(timeline.Comments, st.Comments)
-		timeline.Data = append(timeline.Data, st.Data)
+		timeline.Date = append(timeline.Date, st.Data)
 	}
 
 	return ctx.JSON(http.StatusOK, timeline)

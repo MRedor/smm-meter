@@ -28,5 +28,5 @@ type TimeLineResponse struct {
 	Likes    []int    `json:"likes"`
 	Dislikes []int    `json:"dislikes"`
 	Comments []int    `json:"comments"`
-	Data     []string `json:"data"`
+	Date     []string `json:"date"`
 }
