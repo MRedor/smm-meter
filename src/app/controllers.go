@@ -8,6 +8,17 @@ import (
 	"net/http"
 )
 
+func GetId(ctx echo.Context) error {
+	name := ctx.Param("name")
+
+	c, err :=  collector.NewCollector()
+	if err != nil {
+		return ctx.JSON(http.StatusServiceUnavailable, err.Error())
+	}
+	id := c.ChannelByUsername(name)
+	return ctx.JSON(http.StatusOK, id)
+}
+
 func GetChannel(ctx echo.Context) error {
 	id := ctx.Param("id")
 
